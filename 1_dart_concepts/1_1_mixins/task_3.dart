@@ -1,5 +1,6 @@
 /// Object equipable by a [Character].
 abstract class Item {}
+enum Slot { hand, hat, torso, legs, shoes }
 
 /// Entity equipping [Item]s.
 class Character {
@@ -10,37 +11,123 @@ class Character {
   Item? legs;
   Item? shoes;
 
-  /// Returns all the [Item]s equipped by this [Character].
   Iterable<Item> get equipped =>
       [leftHand, rightHand, hat, torso, legs, shoes].whereType<Item>();
 
-  /// Returns the total damage of this [Character].
   int get damage {
-    // TODO: Implement me.
-    return 0;
+    return equipped
+        .whereType<Weapon>()
+        .fold(0, (sum, weapon) => sum + weapon.damage);
   }
 
-  /// Returns the total defense of this [Character].
   int get defense {
-    // TODO: Implement me.
-    return 0;
+    return equipped
+        .whereType<Armor>()
+        .fold(0, (sum, armor) => sum + armor.defense);
   }
 
-  /// Equips the provided [item], meaning putting it to the corresponding slot.
-  ///
-  /// If there's already a slot occupied, then throws a [OverflowException].
   void equip(Item item) {
-    // TODO: Implement me.
+    if (item is Weapon) {
+      if (rightHand == null) {
+        rightHand = item;
+        return;
+      } else if (leftHand == null) {
+        leftHand = item;
+        return;
+      } else {
+        throw OverflowException();
+      }
+    }
+
+    if (item is Armor) {
+      switch (item.slot) {
+        case Slot.hat:
+          if (hat == null) {
+            hat = item;
+            return;
+          }
+          throw OverflowException();
+        case Slot.torso:
+          if (torso == null) {
+            torso = item;
+            return;
+          }
+          throw OverflowException();
+        case Slot.legs:
+          if (legs == null) {
+            legs = item;
+            return;
+          }
+          throw OverflowException();
+        case Slot.shoes:
+          if (shoes == null) {
+            shoes = item;
+            return;
+          }
+          throw OverflowException();
+        case Slot.hand:
+          print("This item can not be equipped to hand");
+      }
+    }
   }
 }
 
-/// [Exception] indicating there's no place left in the [Character]'s slot.
+mixin Weapon on Item {
+  int get damage;
+  Slot get slot;
+}
+
+mixin Armor on Item {
+  int get defense;
+  Slot get slot;
+}
+
+class Sword extends Item with Weapon {
+  @override
+  final int damage;
+  @override
+  final Slot slot = Slot.hand;
+
+  Sword(this.damage);
+}
+
+class Dagger extends Item with Weapon {
+  @override
+  final int damage;
+  @override
+  final Slot slot = Slot.hand;
+
+  Dagger(this.damage);
+}
+
+class Helmet extends Item with Armor {
+  @override
+  final int defense;
+  @override
+  final Slot slot = Slot.hat;
+
+  Helmet(this.defense);
+}
+
+class Chestplate extends Item with Armor {
+  @override
+  final int defense;
+  @override
+  final Slot slot = Slot.torso;
+
+  Chestplate(this.defense);
+}
+
 class OverflowException implements Exception {}
 
 void main() {
-  // Implement mixins to differentiate [Item]s into separate categories to be
-  // equipped by a [Character]: weapons should have some damage property, while
-  // armor should have some defense property.
-  //
-  // [Character] can equip weapons into hands, helmets onto hat, etc.
+  Character character = Character();
+  character.equip(Sword(15));
+  character.equip(Dagger(10));
+  character.equip(Chestplate(15));
+  character.equip(Helmet(5));
+  character.equip(Helmet(5));
+
+  print(character.damage);
+  print(character.defense);
 }
