@@ -126,7 +126,6 @@ void main() {
   character.equip(Dagger(10));
   character.equip(Chestplate(15));
   character.equip(Helmet(5));
-  character.equip(Helmet(5));
 
   print(character.damage);
   print(character.defense);

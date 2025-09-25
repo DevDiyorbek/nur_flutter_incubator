@@ -1,7 +1,9 @@
+import 'dart:async';
+
 /// Collection of [messages] allowed to be [read].
 class Chat {
   Chat(this.onRead);
-
+  Timer? timer;
   /// Callback, called when this [Chat] should be marked as read until the
   /// provided [int] remotely.
   ///
@@ -13,9 +15,11 @@ class Chat {
 
   /// Marks this [Chat] as read until the specified [message].
   void read(int message) {
-    // TODO: [onRead] should be invoked no more than 1 time in a second.
+    if (timer == null) {
+      onRead(message);
+      timer = Timer(Duration(seconds: 1), () { timer = null; });
+    };
 
-    onRead(message);
   }
 }
 

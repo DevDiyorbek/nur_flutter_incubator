@@ -51,10 +51,25 @@ class Server {
 
 class DisconnectedException implements Exception {}
 
+
 class Client {
   Future<void> connect(Server server) async {
-    // TODO: Implement backoff re-connecting.
-    //       Data from the [server] should be printed to the console.
+
+    int attempt =0;
+    while(true){
+      try{
+        final stream = await server.connect();
+        await for(final data in stream){
+          print(data);
+        }
+        attempt = 0;
+      } on DisconnectedException{
+        attempt++;
+        final delay = Duration(seconds:attempt);
+        print('Disconnected. Reconnecting in ${delay.inSeconds} sec...');
+        await Future.delayed(delay);
+      }
+    }
   }
 }
 
